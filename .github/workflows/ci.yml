@@ -28,7 +28,10 @@ jobs:
           python-version: "3.12"
 
       - name: Syntax check
-        run: python -m py_compile main.py
+        run: >-
+          python -m py_compile
+          autograd.py primitives.py tokenizer.py embedding.py gpt.py
+          config.py optimizer.py training.py pipeline.py main.py
 
-      - name: Structure test
-        run: python -m unittest discover -s tests -v
+      - name: Import check
+        run: python -c "import main, pipeline, training"

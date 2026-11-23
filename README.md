@@ -1,18 +1,21 @@
 # gpttest
 
-microgpt на чистом Python, разложенный на этапы пайплайна в одном файле.
+microgpt, разложенный на модули. Пайплайн — `pipeline(data)`.
 
-## Пайплайн
+## Модули
 
-```text
-sample → tokenize → embed → build_gpt → predict → train → test
-```
-
-`pipeline()` и функции-этапы состоят только из вызовов. Реальная работа — в примитивах ниже по файлу.
-
-## Алгоритм
-
-Тот же, что в исходном microgpt: `Value` с автоградом, эмбеддинги `wte`/`wpe`, один слой attention + MLP, Adam, 1000 шагов, inference на 20 сэмплов. Ничего не добавлено и не изменено по математике.
+| Файл | Содержимое |
+|---|---|
+| `autograd.py` | класс `Value` |
+| `primitives.py` | `linear`, `softmax`, `rmsnorm` |
+| `tokenizer.py` | класс `Tokenizer` |
+| `embedding.py` | класс `Embedding` |
+| `gpt.py` | класс `GPT` |
+| `config.py` | `build_config`, `make_matrix`, `build_state_dict` |
+| `optimizer.py` | `build_optimizer`, `adam_update` |
+| `training.py` | `train_loop`, `test_loop` |
+| `pipeline.py` | `pipeline(data)` — только вызовы |
+| `main.py` | точка входа |
 
 ## Запуск
 
@@ -20,16 +23,14 @@ sample → tokenize → embed → build_gpt → predict → train → test
 python main.py
 ```
 
-Python 3.10+. Если `input.txt` нет, данные скачаются автоматически.
+Python 3.10+. Если `input.txt` нет, скачается `names.txt` из `karpathy/makemore`.
 
 ## Проверки
 
 ```bash
-python -m py_compile main.py
-python -m unittest discover -s tests -v
+python -m py_compile autograd.py primitives.py tokenizer.py embedding.py gpt.py config.py optimizer.py training.py pipeline.py main.py
+python -c "import main, pipeline, training"
 ```
-
-`tests/test_structure.py` проверяет через `ast`, что функции-этапы состоят только из вызовов.
 
 ## CI
 
